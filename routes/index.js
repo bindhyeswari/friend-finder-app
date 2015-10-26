@@ -1,28 +1,53 @@
 var express = require('express');
 var router = express.Router();
+var models = require('../models/models');
 
-function middleware1(req, res, next) {
-  console.log(req.user);
-  next();
-}
+router.use(function (req, res, next) {
+  if (req.user) next();
+  else {
+    res.status(401).json({ message: 'You need to be authenticated to see the information ... ' });
+  }
+});
 
-router.use(['/test', '/info'], middleware1);
+
+// implement an access control list
+
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.json({ title: 'Express' });
+  if (req.user) {
+    res.status(200).json({user: req.user});
+
+    // save the person to mongodb
+
+    (new models.GoogleUserModel({
+      userid: req.user.id,
+      profile: req.user
+    })).save(function (err, result) {
+          if (err) console.log('Something broke! Could not save ', req.user.displayName);
+          else console.log('Saved the user ', req.user.id, ' successfully ... ');
+        });
+
+  } else {
+    res.status(401).json({message: 'unauthorized access ... '});
+  }
 });
 
-router.get('/test', function(req, res, next) {
-  res.json({ title: 'Test' });
+router.get('/users', function (req, res) {
+  models.GoogleUserModel.find(function (err, result) {
+    if (err) res.status(500).json({ message: 'something broke .... '});
+    else res.status(200).json(result);
+  });
 });
 
-router.get('/test/info', function(req, res, next) {
-  res.json({ title: 'Test Info' });
+router.get('/validate', function (req, res) {
+   res.status(200).json(req.user);
 });
 
-router.get('/info', function(req, res, next) {
-  res.json({ title: 'Info' });
+router.post('/position', function (req, res) {
+   // get the information from the front end and store to the back end ...
 });
+
 
 module.exports = router;
