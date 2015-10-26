@@ -7,7 +7,7 @@ var GoogleUserModel = mongoose.model('user', mongoose.Schema({
         unique: true
     },
     profile: Schema.Types.Mixed,
-    friends: Array[String]
+    friends: [String]
 }));
 
 var PositionModel = mongoose.model('position', mongoose.Schema({
@@ -17,5 +17,6 @@ var PositionModel = mongoose.model('position', mongoose.Schema({
 }));
 
 module.exports = {
-    GoogleUserModel: GoogleUserModel
+    GoogleUserModel: GoogleUserModel,
+    PositionModel: PositionModel
 };

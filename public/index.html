@@ -10,7 +10,7 @@
             $scope.message = 'Hello';
         });
 
-        app.controller('LandingController', function ($scope, User, Geolocation) {
+        app.controller('LandingController', function ($scope, User, Geolocation, Position) {
             $scope.user = null;
 
             User.validate().then(function (data) {
@@ -27,6 +27,10 @@
                 }, function (data) {
                     console.log(data);
                 });
+            };
+
+            $scope.sendPosition = function () {
+                Position.send();
             };
 
 
@@ -75,6 +79,35 @@
             };
         });
 
+        app.factory('Position', function (Geolocation, $http, User) {
+            return {
+                send: function () {
+                    console.log('starting the position service ... ');
+                    console.time('info');
+                    // sending position information to the backend
+                    Geolocation.getPosition().then(function(loc) {
+                        var obj = {
+                            gid: User.profile.id,
+                            coords: {
+                                latitude: loc.coords.latitude,
+                                longitude: loc.coords.longitude
+                            }
+                        };
+                        console.log('have access to the position ... ', obj);
+                        $http.post('/position', obj).then(function (config) {
+                            // success from the server
+                            console.timeEnd('info');
+                            console.log(config.data);
+                        }, function (config) {
+                            // error from the server
+                            console.log('Failed to contact server ...', config);
+
+                        });
+                    });
+                }
+            };
+        });
+
     </script>
 </head>
 <body>
@@ -84,6 +117,7 @@
         <section ng-if="user">
             <h2>Friend Finder Application - Geolocation</h2>
             <button ng-click="getLocation()">Get Location</button>
+            <button ng-click="sendPosition()">Send Position to Backend ... </button>
             <div class="panel" ng-if="coords">
                 You are at: {{coords.latitude | number : 2}}, {{coords.longitude | number: 2}}
             </div>

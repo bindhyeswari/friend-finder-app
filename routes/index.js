@@ -47,6 +47,14 @@ router.get('/validate', function (req, res) {
 
 router.post('/position', function (req, res) {
    // get the information from the front end and store to the back end ...
+  console.log(req.body);
+  req.body.timestamp = new Date();
+
+  (new models.PositionModel(req.body)).save(function (err, result) {
+      if (err) res.status(500).json({error: err});
+      else res.status(201).json({result: result});
+  });
+
 });
 
 
