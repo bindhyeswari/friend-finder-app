@@ -1,0 +1,13 @@
+<section>
+    <div ng-hide="user">Logging in ... </div>
+
+    <section ng-if="user">
+        <h2>Friend Finder Application - Geolocation</h2>
+        <button ng-click="getLocation()">Get Location</button>
+        <button ng-click="sendPosition()">Send Position to Backend ... </button>
+        <div class="panel" ng-if="coords">
+            You are at: {{coords.latitude | number : 2}}, {{coords.longitude | number: 2}}
+        </div>
+    </section>
+
+</section>

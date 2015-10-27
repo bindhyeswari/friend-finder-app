@@ -1,0 +1,19 @@
+<section>
+
+    <h1>Profile Data for the User</h1>
+    <div class="panel">Information about the user</div>
+
+    <section class="friends">
+        <h2>Friends</h2>
+        <input type="text" placeholder="name of friend" ng-model="friend.name"/>
+        <input type="text" placeholder="gmail id" ng-model="friend.email"/>
+        <button ng-click="saveFriend()">Add Friend</button>
+
+
+        <h2>List of Friends ... </h2>
+        <ul>
+            <li ng-repeat="(key, value) in friends">{{value.name}}, <em>{{value.email}}</em></li>
+        </ul>
+    </section>
+
+</section>
