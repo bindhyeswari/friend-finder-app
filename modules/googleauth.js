@@ -2,6 +2,8 @@ var passport = require('passport')
     , util = require('util')
     , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
+var models = require('../models/models');
+
 var session = require('express-session');
 
 var google_creds = require('../config');
@@ -20,6 +22,23 @@ passport.use(new GoogleStrategy({
         callbackURL: google_creds.GOOGLE_CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, done) {
+
+        // can store user details to mongodb here ...
+        console.log(profile.emails[0].value);
+
+        (new models.GoogleUserModel({
+            email: profile.emails[0].value,
+            userid: profile.id,
+            profile: profile
+        })).save(function (err, result) {
+            if (err) console.error('Error: Could not save the user: ', profile.id);
+            else console.log('Successfully saved profile for the user: ', profile.id);
+        });
+
+        // issue: NO access to the gmail id
+
+
+
         // asynchronous verification, for effect...
         process.nextTick(function () {
 
@@ -48,7 +67,7 @@ module.exports = function (app) {
     app.use(passport.session());
 
     app.get('/auth/google',
-        passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }),
+        passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }),
         function(req, res){
             // The request will be redirected to Google for authentication, so this
             // function will not be called.
@@ -57,6 +76,10 @@ module.exports = function (app) {
     app.get('/auth/google/callback',
         passport.authenticate('google', { failureRedirect: '/login' }),
         function(req, res) {
+
+            // store the user details to MongoDB
+
+
             res.redirect('/');
         });
 
